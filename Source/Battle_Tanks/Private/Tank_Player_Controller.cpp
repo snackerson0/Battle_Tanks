@@ -23,3 +23,21 @@ void ATank_Player_Controller:: BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT(" No Tank Controlled"))
 	}
 }
+
+void ATank_Player_Controller::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	
+}
+
+void ATank_Player_Controller::AimTowardCrossHair()
+{
+	if(!GetControlledTank())
+	{
+		return;
+	}
+	if(GetControlledTank())
+	{
+		
+	}
+}
