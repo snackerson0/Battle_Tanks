@@ -1,43 +1,57 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+
 #include "Engine/World.h"
 #include "TankAimingComponent.h"
-#include "Runtime/Engine/Classes/Engine/World.h"
-
+#include "Kismet/GameplayStatics.h"
+#include "Components/StaticMeshComponent.h"
 
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 	// ...
 }
 
 
-// Called when the game starts
-void UTankAimingComponent::BeginPlay()
+void UTankAimingComponent::SetBarrel(UStaticMeshComponent *BarrelToSet)
 {
-	Super::BeginPlay();
+	Barrel = BarrelToSet;
+}
 
-	// ...
+
+
+void UTankAimingComponent::AimAt(FVector HitLocation,float LaunchSpeed)
+{ 
+	if(!Barrel) {return;}
+	
+
+		FVector LaunchVelocity;
+		FVector StartLocation = Barrel->GetSocketLocation(FName("BarrelEnd"));
+		 
+
+		if (UGameplayStatics::SuggestProjectileVelocity(this,LaunchVelocity,StartLocation, HitLocation,LaunchSpeed,false,0,0,ESuggestProjVelocityTraceOption::DoNotTrace))
+		{
+			auto AimDirection = LaunchVelocity.GetSafeNormal();
+			
+			MoveBarrelTowards(AimDirection);
+		}
+
+		
+	
+
 	
 }
 
-
-// Called every frame
-void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-
-void UTankAimingComponent::AimAt(FVector HitLocation)
-{
+	auto BarrelRotator = Barrel->GetForwardVector().Rotation();
+	auto AimatRotation = AimDirection.Rotation();
 	auto CurrentTank = GetOwner()->GetName();
-	UE_LOG(LogTemp, Warning, TEXT("%s is aiming at %s"), *CurrentTank, *HitLocation.ToString())
+	UE_LOG(LogTemp, Warning, TEXT("%s is firing at launch speed %s"), *CurrentTank, *AimatRotation.ToString())
 }
 
 
